@@ -1,0 +1,2533 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>J.A.R.V.I.S</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      :root {
+        --red: #ff2d2d;
+        --bg: #080b0d;
+        --card: #0e1215;
+        --card2: #111518;
+        --b: rgba(255, 255, 255, 0.055);
+        --br: rgba(255, 45, 45, 0.22);
+        --mt: #4a5568;
+        --tx: #e2e8f0;
+        --gn: #22c55e;
+        --am: #f59e0b;
+        --bl: #3b82f6;
+        --pu: #a78bfa;
+        --pd: #7c3aed;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--tx);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .hdr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 32px;
+        border-bottom: 1px solid var(--b);
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        background: rgba(8, 11, 13, 0.93);
+        backdrop-filter: blur(16px);
+      }
+      .logo-g {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--red);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        animation: lp 3s ease-in-out infinite;
+      }
+      @keyframes lp {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(255, 45, 45, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 36px rgba(255, 45, 45, 0.8);
+        }
+      }
+      .logo {
+        font-family: "Outfit", sans-serif;
+        font-size: 19px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: var(--red);
+      }
+      .logo em {
+        color: var(--tx);
+        opacity: 0.45;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+      }
+      .hdr-r {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .clk {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--mt);
+        letter-spacing: 1px;
+      }
+      .pill {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 15px;
+        border-radius: 999px;
+        font-family: "Outfit", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid;
+        transition: all 0.3s;
+      }
+      .pdot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        animation: bl 1.4s ease-in-out infinite;
+        flex-shrink: 0;
+      }
+      @keyframes bl {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+      .p-wait {
+        border-color: rgba(74, 85, 104, 0.4);
+        color: var(--mt);
+        background: rgba(74, 85, 104, 0.08);
+      }
+      .p-wait .pdot {
+        background: var(--mt);
+      }
+      .p-on {
+        border-color: rgba(34, 197, 94, 0.3);
+        color: var(--gn);
+        background: rgba(34, 197, 94, 0.07);
+      }
+      .p-on .pdot {
+        background: var(--gn);
+      }
+      .p-off {
+        border-color: rgba(255, 45, 45, 0.3);
+        color: #ff6b6b;
+        background: rgba(255, 45, 45, 0.07);
+      }
+      .p-off .pdot {
+        background: var(--red);
+      }
+      .p-warn {
+        border-color: rgba(245, 158, 11, 0.3);
+        color: var(--am);
+        background: rgba(245, 158, 11, 0.07);
+      }
+      .p-warn .pdot {
+        background: var(--am);
+      }
+      .p-hot {
+        border-color: rgba(255, 100, 0, 0.5);
+        color: #ff6600;
+        background: rgba(255, 100, 0, 0.1);
+        animation: hotpulse 0.8s ease-in-out infinite;
+      }
+      .p-hot .pdot {
+        background: #ff6600;
+      }
+      @keyframes hotpulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 100, 0, 0);
+        }
+        50% {
+          box-shadow: 0 0 8px 3px rgba(255, 100, 0, 0.4);
+        }
+      }
+      .p-calib {
+        border-color: rgba(167, 139, 250, 0.5);
+        color: var(--pu);
+        background: rgba(167, 139, 250, 0.08);
+        animation: calibpulse 1s ease-in-out infinite;
+      }
+      .p-calib .pdot {
+        background: var(--pu);
+      }
+      @keyframes calibpulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(167, 139, 250, 0);
+        }
+        50% {
+          box-shadow: 0 0 8px 3px rgba(167, 139, 250, 0.3);
+        }
+      }
+      .dash {
+        display: grid;
+        grid-template-columns: 1fr 1fr 310px;
+        gap: 14px;
+        padding: 16px 32px 32px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 16px;
+        border: 1px solid var(--b);
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        transition:
+          transform 0.2s,
+          border-color 0.2s,
+          box-shadow 0.2s;
+        animation: fu 0.45s ease both;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: var(--br);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 45, 45, 0.4),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .card:hover::before {
+        opacity: 1;
+      }
+      @keyframes fu {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .cl {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: var(--mt);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .cv {
+        font-family: "Outfit", sans-serif;
+        font-size: 40px;
+        font-weight: 800;
+        color: var(--red);
+        line-height: 1;
+        transition: color 0.3s;
+      }
+      .map-card {
+        grid-column: 1/3;
+        height: 370px;
+        padding: 0;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+      }
+      .leaflet-container {
+        background: #060a0c;
+      }
+      .leaflet-tile {
+        filter: brightness(0.6) saturate(0.35) hue-rotate(15deg);
+      }
+      .leaflet-control-zoom a {
+        background: #0e1215 !important;
+        color: var(--red) !important;
+        border-color: #1a1f24 !important;
+      }
+      .leaflet-control-zoom {
+        margin: 12px !important;
+      }
+      .map-overlay {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 500;
+        background: rgba(8, 11, 13, 0.88);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--b);
+        border-radius: 10px;
+        padding: 7px 13px;
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--mt);
+      }
+      .map-overlay strong {
+        color: var(--red);
+      }
+      .map-legend {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        z-index: 500;
+        background: rgba(8, 11, 13, 0.88);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--b);
+        border-radius: 10px;
+        padding: 7px 13px;
+        font-size: 11px;
+        color: var(--mt);
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .ld {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .rover-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--gn);
+        border: 3px solid white;
+        box-shadow:
+          0 0 0 4px rgba(34, 197, 94, 0.3),
+          0 0 18px rgba(34, 197, 94, 0.6);
+        animation: rp 2s ease-in-out infinite;
+      }
+      @keyframes rp {
+        0%,
+        100% {
+          box-shadow:
+            0 0 0 4px rgba(34, 197, 94, 0.3),
+            0 0 18px rgba(34, 197, 94, 0.5);
+        }
+        50% {
+          box-shadow:
+            0 0 0 10px rgba(34, 197, 94, 0.08),
+            0 0 28px rgba(34, 197, 94, 0.8);
+        }
+      }
+      .rover-dot.hot {
+        background: #ff6600;
+        animation: hotrp 0.6s ease-in-out infinite;
+      }
+      @keyframes hotrp {
+        0%,
+        100% {
+          box-shadow:
+            0 0 0 4px rgba(255, 102, 0, 0.4),
+            0 0 18px rgba(255, 102, 0, 0.7);
+        }
+        50% {
+          box-shadow:
+            0 0 0 10px rgba(255, 102, 0, 0.1),
+            0 0 28px rgba(255, 102, 0, 1);
+        }
+      }
+      .rover-dot.calib {
+        background: var(--pu);
+        box-shadow:
+          0 0 0 4px rgba(167, 139, 250, 0.3),
+          0 0 18px rgba(167, 139, 250, 0.7);
+      }
+      .dock-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: #1a1f24;
+        border: 2.5px solid var(--am);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      }
+      .map-toolbar {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 500;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .tb-btn {
+        background: rgba(8, 11, 13, 0.88);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--b);
+        border-radius: 10px;
+        padding: 7px 13px;
+        font-size: 11px;
+        color: var(--tx);
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .tb-btn:hover {
+        border-color: var(--br);
+        color: var(--red);
+      }
+      .tb-btn.active {
+        border-color: rgba(34, 197, 94, 0.5);
+        color: var(--gn);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      #calibDrivePad {
+        display: none;
+        position: absolute;
+        bottom: 56px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 600;
+        background: rgba(6, 8, 10, 0.93);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(167, 139, 250, 0.45);
+        border-radius: 18px;
+        padding: 16px 20px;
+        box-shadow: 0 4px 32px rgba(124, 58, 237, 0.35);
+        user-select: none;
+      }
+      #calibDrivePad .pad-title {
+        font-family: "Outfit", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2.5px;
+        color: var(--pu);
+        text-align: center;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+      #calibDrivePad .pad-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 52px);
+        grid-template-rows: repeat(2, 52px);
+        gap: 7px;
+      }
+      .dpad-btn {
+        width: 52px;
+        height: 52px;
+        background: #12151a;
+        border: 1px solid rgba(167, 139, 250, 0.3);
+        border-radius: 11px;
+        color: var(--pu);
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.12s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-user-select: none;
+      }
+      .dpad-btn:hover {
+        background: rgba(124, 58, 237, 0.18);
+        border-color: rgba(167, 139, 250, 0.6);
+      }
+      .dpad-btn.active {
+        background: rgba(124, 58, 237, 0.45);
+        border-color: var(--pu);
+        transform: scale(0.93);
+      }
+      .dpad-btn.stop-btn {
+        background: #160509;
+        border-color: rgba(255, 45, 45, 0.35);
+        color: var(--red);
+      }
+      .dpad-btn.stop-btn:hover {
+        background: rgba(255, 45, 45, 0.15);
+      }
+      #calibDrivePad .pad-hint {
+        font-size: 10px;
+        color: #2d3748;
+        text-align: center;
+        margin-top: 9px;
+      }
+      #calibDrivePad .pad-wpctr {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--pu);
+        text-align: center;
+        margin-top: 6px;
+      }
+      #replayBar {
+        display: none;
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 600;
+        width: 260px;
+        background: rgba(6, 8, 10, 0.9);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(167, 139, 250, 0.4);
+        border-radius: 10px;
+        padding: 8px 14px;
+      }
+      #replayBar .rb-label {
+        font-size: 10px;
+        color: var(--pu);
+        letter-spacing: 1.5px;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+      }
+      #replayBar .rb-bg {
+        height: 5px;
+        background: #1a1f24;
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      #replayBar .rb-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--pd), var(--pu));
+        transition: width 0.5s ease;
+      }
+      .wx-card {
+        grid-column: 3;
+        height: 370px;
+        display: flex;
+        flex-direction: column;
+      }
+      .wx-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .wx-ico {
+        font-size: 40px;
+        line-height: 1;
+      }
+      .wx-tmp {
+        font-family: "Outfit", sans-serif;
+        font-size: 34px;
+        font-weight: 800;
+      }
+      .wx-dsc {
+        font-size: 12px;
+        color: var(--mt);
+        margin-top: 2px;
+      }
+      .wx-g {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 9px;
+      }
+      .wxs {
+        background: var(--card2);
+        border: 1px solid var(--b);
+        border-radius: 10px;
+        padding: 9px 12px;
+      }
+      .wxsl {
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        color: var(--mt);
+        margin-bottom: 3px;
+        text-transform: uppercase;
+      }
+      .wxsv {
+        font-family: "DM Mono", monospace;
+        font-size: 16px;
+      }
+      .wx-now {
+        background: var(--card2);
+        border: 1px solid var(--b);
+        border-radius: 10px;
+        padding: 9px 12px;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+      .wx-rb-wrap {
+        margin-top: auto;
+      }
+      .wx-rl {
+        font-size: 14px;
+        letter-spacing: 1.5px;
+        color: var(--mt);
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        text-transform: uppercase;
+      }
+      .wx-rb-bg {
+        height: 7px;
+        background: #1a1f24;
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .wx-rb-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--bl), #60a5fa);
+        transition: width 0.7s ease;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+      }
+      .stats-row {
+        grid-column: 1/3;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+      .bb {
+        height: 6px;
+        background: #1a1f24;
+        border-radius: 99px;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+      .bf {
+        height: 100%;
+        border-radius: 99px;
+        transition:
+          width 0.5s ease,
+          background 0.3s;
+      }
+      .bg {
+        background: linear-gradient(90deg, #22c55e, #4ade80);
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+      }
+      .ba {
+        background: linear-gradient(90deg, #f59e0b, #fcd34d);
+        box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+      }
+      .br {
+        background: linear-gradient(90deg, #ff2d2d, #ff6b6b);
+        box-shadow: 0 0 6px rgba(255, 45, 45, 0.4);
+      }
+      .bbl {
+        background: linear-gradient(90deg, var(--bl), #60a5fa);
+        box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+      }
+      .sn {
+        font-family: "Outfit", sans-serif;
+        font-size: 52px;
+        font-weight: 900;
+        color: var(--red);
+        line-height: 1;
+      }
+      .sd-wrap {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .sd {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--red);
+        opacity: 0.18;
+        transition:
+          opacity 0.3s,
+          box-shadow 0.3s;
+      }
+      .sd.on {
+        opacity: 1;
+        box-shadow: 0 0 6px rgba(255, 45, 45, 0.6);
+      }
+      .ctrl {
+        grid-column: 3;
+        grid-row: 2/5;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .btn {
+        width: 100%;
+        padding: 15px;
+        border-radius: 12px;
+        border: none;
+        font-family: "Outfit", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.18s;
+      }
+      .btn:active {
+        transform: scale(0.96);
+      }
+      .btn-s {
+        background: var(--red);
+        color: #fff;
+        box-shadow: 0 4px 18px rgba(255, 45, 45, 0.35);
+      }
+      .btn-s:hover:not(:disabled) {
+        background: #ff4040;
+        box-shadow: 0 6px 26px rgba(255, 45, 45, 0.55);
+        transform: translateY(-1px);
+      }
+      .btn-s.run {
+        background: var(--gn);
+        animation: rrun 1.8s ease-in-out infinite;
+      }
+      @keyframes rrun {
+        0%,
+        100% {
+          box-shadow: 0 4px 18px rgba(34, 197, 94, 0.3);
+        }
+        50% {
+          box-shadow: 0 4px 28px rgba(34, 197, 94, 0.6);
+        }
+      }
+      .btn-d {
+        background: transparent;
+        color: var(--red);
+        border: 1.5px solid var(--red);
+      }
+      .btn-d:hover:not(:disabled) {
+        background: rgba(255, 45, 45, 0.08);
+        box-shadow: 0 0 16px rgba(255, 45, 45, 0.2);
+        transform: translateY(-1px);
+      }
+      .btn-calib {
+        background: transparent;
+        color: var(--pu);
+        border: 1.5px solid var(--pd);
+      }
+      .btn-calib:hover:not(:disabled) {
+        background: rgba(124, 58, 237, 0.1);
+        transform: translateY(-1px);
+      }
+      .btn-calib-done {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--gn);
+        border: 1.5px solid rgba(34, 197, 94, 0.5);
+      }
+      .btn-calib-done:hover:not(:disabled) {
+        background: rgba(34, 197, 94, 0.25);
+      }
+      .btn-replay {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--bl);
+        border: 1.5px solid rgba(59, 130, 246, 0.5);
+      }
+      .btn-replay:hover:not(:disabled) {
+        background: rgba(59, 130, 246, 0.25);
+      }
+      .btn-cancel {
+        background: rgba(255, 45, 45, 0.08);
+        color: #ff6b6b;
+        border: 1.5px solid rgba(255, 45, 45, 0.3);
+        padding: 10px 15px;
+        font-size: 11px;
+      }
+      .btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .div {
+        height: 1px;
+        background: var(--b);
+      }
+      .ir {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 11px;
+        background: var(--card2);
+        border-radius: 8px;
+        border: 1px solid var(--b);
+        font-size: 12px;
+      }
+      .irl {
+        color: var(--mt);
+      }
+      .irv {
+        font-family: "DM Mono", monospace;
+        font-size: 12px;
+      }
+      #calibStatusChip {
+        display: none;
+        padding: 8px 12px;
+        border-radius: 9px;
+        background: rgba(124, 58, 237, 0.1);
+        border: 1px solid rgba(167, 139, 250, 0.25);
+        font-size: 11px;
+        color: var(--pu);
+        font-family: "DM Mono", monospace;
+        text-align: center;
+        line-height: 1.5;
+      }
+      .al-list {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-top: 4px;
+      }
+      .al-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: #160d0d;
+        border: 1px solid rgba(255, 45, 45, 0.2);
+        border-radius: 8px;
+        padding: 9px 13px;
+        font-size: 13px;
+        color: #ff8080;
+        animation: si 0.3s ease both;
+      }
+      @keyframes si {
+        from {
+          opacity: 0;
+          transform: translateX(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .adot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--red);
+        flex-shrink: 0;
+        box-shadow: 0 0 5px rgba(255, 45, 45, 0.8);
+        animation: bl 1s ease-in-out infinite;
+      }
+      .no-al {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--mt);
+        font-size: 13px;
+        padding: 6px 0;
+      }
+      .na-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gn);
+        box-shadow: 0 0 5px rgba(34, 197, 94, 0.6);
+      }
+      .sl-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 8px;
+        overflow-y: auto;
+      }
+      .sl-item {
+        background: rgba(255, 45, 45, 0.07);
+        border: 1px solid rgba(255, 45, 45, 0.18);
+        border-radius: 8px;
+        padding: 5px 10px;
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: #ff8080;
+      }
+      #shutdownOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.82);
+        backdrop-filter: blur(10px);
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 16px;
+      }
+      #shutdownOverlay.show {
+        display: flex;
+      }
+      .so-box {
+        background: #12090a;
+        border: 1.5px solid rgba(255, 100, 0, 0.5);
+        border-radius: 20px;
+        padding: 40px 50px;
+        text-align: center;
+        max-width: 420px;
+        box-shadow: 0 0 60px rgba(255, 80, 0, 0.3);
+      }
+      .so-icon {
+        font-size: 52px;
+        margin-bottom: 12px;
+        animation: soflicker 0.5s ease-in-out infinite alternate;
+      }
+      @keyframes soflicker {
+        from {
+          opacity: 0.7;
+          transform: scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1.03);
+        }
+      }
+      .so-title {
+        font-family: "Outfit", sans-serif;
+        font-weight: 900;
+        font-size: 22px;
+        color: #ff6600;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+      }
+      .so-sub {
+        color: #aa7050;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      .so-temp {
+        font-family: "DM Mono", monospace;
+        font-size: 36px;
+        font-weight: 700;
+        color: #ff4400;
+      }
+      .so-target {
+        font-size: 12px;
+        color: #664433;
+        margin-top: 4px;
+      }
+      .so-bar-bg {
+        height: 8px;
+        background: #1a0a06;
+        border-radius: 99px;
+        overflow: hidden;
+        margin: 14px 0;
+        width: 100%;
+      }
+      .so-bar {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #ff6600, #ffaa00);
+        transition: width 0.5s ease;
+        box-shadow: 0 0 8px rgba(255, 100, 0, 0.6);
+      }
+
+      .lang-wrap {
+        position: relative;
+      }
+      .lang-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: var(--card);
+        border: 1px solid var(--b);
+        color: var(--tx);
+        font-family: "Outfit", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        letter-spacing: 0.5px;
+      }
+      .lang-btn:hover {
+        border-color: var(--br);
+        color: var(--red);
+      }
+      .lang-drop {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: var(--card);
+        border: 1px solid var(--b);
+        border-radius: 14px;
+        overflow: hidden;
+        min-width: 170px;
+        z-index: 999;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        animation: fu 0.15s ease both;
+      }
+      .lang-drop.open {
+        display: block;
+      }
+      .lang-opt {
+        padding: 10px 16px;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: background 0.15s;
+        color: var(--tx);
+      }
+      .lang-opt:hover {
+        background: var(--card2);
+      }
+      .lang-opt.active {
+        color: var(--red);
+        font-weight: 700;
+      }
+      .lang-opt-flag {
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="shutdownOverlay">
+      <div class="so-box">
+        <div class="so-icon">🌡</div>
+        <div class="so-title">THERMAL SHUTDOWN</div>
+        <div class="so-sub">
+          System temperature exceeded safe limits.<br />All operations locked
+          until cooled.
+        </div>
+        <div class="so-temp" id="soTempVal">--°C</div>
+        <div class="so-target">Target: cool to 45°C before resume</div>
+        <div class="so-bar-bg">
+          <div class="so-bar" id="soBar" style="width: 100%"></div>
+        </div>
+        <div style="color: #664433; font-size: 12px">
+          Manual override disabled during thermal shutdown
+        </div>
+      </div>
+    </div>
+
+    <header class="hdr">
+      <div class="logo-g">
+        <div class="logo-icon">J</div>
+        <div class="logo">
+          J.A.R.V.I.S<br /><em
+            >Just Another Rover for Vegetation Inspection &amp; Spraying</em
+          >
+        </div>
+      </div>
+      <div class="hdr-r">
+        <span class="clk" id="clk">--:--:--</span>
+        <div class="lang-wrap" id="langWrap">
+          <button class="lang-btn" onclick="toggleLangDrop()">
+            <span id="langFlag">🌐</span><span id="langLabel">EN</span>
+            <span style="opacity: 0.4; font-size: 10px">▼</span>
+          </button>
+          <div class="lang-drop" id="langDrop">
+            <div class="lang-opt active" onclick="setLang('en')" data-lang="en">
+              <span class="lang-opt-flag">🇬🇧</span> English
+            </div>
+            <div class="lang-opt" onclick="setLang('ta')" data-lang="ta">
+              <span class="lang-opt-flag">🇮🇳</span> தமிழ்
+            </div>
+            <div class="lang-opt" onclick="setLang('hi')" data-lang="hi">
+              <span class="lang-opt-flag">🇮🇳</span> हिन्दी
+            </div>
+            <div class="lang-opt" onclick="setLang('te')" data-lang="te">
+              <span class="lang-opt-flag">🇮🇳</span> తెలుగు
+            </div>
+            <div class="lang-opt" onclick="setLang('kn')" data-lang="kn">
+              <span class="lang-opt-flag">🇮🇳</span> ಕನ್ನಡ
+            </div>
+            <div class="lang-opt" onclick="setLang('ml')" data-lang="ml">
+              <span class="lang-opt-flag">🇮🇳</span> മലയാളം
+            </div>
+          </div>
+        </div>
+        <div class="pill p-wait" id="pill">
+          <span class="pdot"></span><span id="pillTxt">Waiting for Rover</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="dash">
+      <div
+        class="card map-card"
+        style="padding: 0; overflow: hidden; position: relative"
+      >
+        <div id="map"></div>
+        <div id="calibDrivePad">
+          <div class="pad-title" id="padTitle">🎯 Manual Drive</div>
+          <div class="pad-grid">
+            <div></div>
+            <button
+              class="dpad-btn"
+              id="dFwd"
+              data-steer="CENTER"
+              data-move="FWD"
+            >
+              ▲
+            </button>
+            <div></div>
+            <button
+              class="dpad-btn"
+              id="dLeft"
+              data-steer="LEFT"
+              data-move="FWD"
+            >
+              ◀
+            </button>
+            <button
+              class="dpad-btn stop-btn"
+              id="dStop"
+              data-steer="STOP"
+              data-move="STOP"
+            >
+              ■
+            </button>
+            <button
+              class="dpad-btn"
+              id="dRight"
+              data-steer="RIGHT"
+              data-move="FWD"
+            >
+              ▶
+            </button>
+          </div>
+          <div class="pad-hint" id="padHint">
+            Hold to drive • Release to stop
+          </div>
+          <div class="pad-wpctr" id="padWpCtr">0 waypoints recorded</div>
+        </div>
+        <div id="replayBar">
+          <div class="rb-label">
+            <span>▶ REPLAYING PATH</span><span id="replayPct">0%</span>
+          </div>
+          <div class="rb-bg">
+            <div class="rb-fill" id="replayFill" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="map-legend">
+          <div class="ld" style="background: var(--gn)"></div>
+          <span>Rover</span>
+          <div
+            class="ld"
+            style="background: var(--am); border-radius: 3px"
+          ></div>
+          <span>Dock</span>
+          <div class="ld" style="background: #22c55e; opacity: 0.7"></div>
+          <span>Trail</span>
+          <div class="ld" style="background: var(--red)"></div>
+          <span>Sprayed</span>
+          <div
+            class="ld"
+            style="background: var(--pu); border-radius: 3px"
+          ></div>
+          <span>Calib Path</span>
+        </div>
+        <div class="map-toolbar">
+          <button
+            class="tb-btn"
+            id="followBtn"
+            onclick="toggleFollow()"
+            style="border-color: rgba(34, 197, 94, 0.5); color: var(--gn)"
+          >
+            📍 Follow Rover
+          </button>
+          <button class="tb-btn" onclick="clearTrail()">🗑 Clear Trail</button>
+        </div>
+      </div>
+
+      <div class="card wx-card">
+        <div class="cl">🌦 Weather — Chennai</div>
+        <div class="wx-top">
+          <div class="wx-ico" id="wxi">⏳</div>
+          <div>
+            <div class="wx-tmp" id="wxt">--°C</div>
+            <div class="wx-dsc" id="wxd">Loading...</div>
+          </div>
+        </div>
+        <div class="wx-g">
+          <div class="wxs">
+            <div class="wxsl">Humidity</div>
+            <div class="wxsv" id="wxh">--%</div>
+          </div>
+          <div class="wxs">
+            <div class="wxsl">Wind</div>
+            <div class="wxsv" id="wxw">-- km/h</div>
+          </div>
+        </div>
+        <div class="wx-now">
+          <div id="wxrn" style="font-size: 12px; color: var(--gn)">
+            Checking...
+          </div>
+        </div>
+        <div class="wx-rb-wrap">
+          <div class="wx-rl">
+            <span>☔ Rain probability</span
+            ><strong id="wxrp" style="color: var(--bl); font-size: 18px"
+              >--%</strong
+            >
+          </div>
+          <div class="wx-rb-bg">
+            <div class="wx-rb-fill" id="wxrb" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="card">
+          <div class="cl">⚡ Battery</div>
+          <div class="cv" id="batV">0%</div>
+          <div class="bb">
+            <div class="bf bg" id="batB" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cl">💧 Tank Level</div>
+          <div class="cv" id="tankV">0%</div>
+          <div class="bb">
+            <div class="bf bbl" id="tankB" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cl">🌡 Sys Temp</div>
+          <div class="cv" id="tV">--°C</div>
+          <div class="bb">
+            <div class="bf bg" id="tBar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cl">🌿 Sprays Today</div>
+          <div class="sn" id="spN">0</div>
+          <div class="sd-wrap" id="spD"></div>
+        </div>
+      </div>
+
+      <div class="card ctrl">
+        <div class="cl">🎮 Control</div>
+        <button class="btn btn-s" id="startBtn" onclick="toggleStart()">
+          ▶ Start Rover
+        </button>
+        <button class="btn btn-d" id="dockBtn" onclick="doCmd('dock')">
+          ⬡ Return to Dock
+        </button>
+        <div class="div"></div>
+        <div class="cl" style="margin-bottom: 0">🎯 Calibration</div>
+        <button
+          class="btn btn-calib"
+          id="calibStartBtn"
+          onclick="openCalibration()"
+        >
+          🎯 Start Calibration
+        </button>
+        <div id="calibStatusChip"></div>
+        <button
+          class="btn btn-calib-done"
+          id="calibDoneBtn"
+          style="display: none"
+          onclick="doneCalibration()"
+        >
+          ✅ Done Recording
+        </button>
+        <button
+          class="btn btn-cancel"
+          id="calibCancelBtn"
+          style="display: none"
+          onclick="cancelCalibration()"
+        >
+          ✕ Cancel
+        </button>
+        <button
+          class="btn btn-replay"
+          id="calibReplayBtn"
+          style="display: none"
+          onclick="replayCalibration()"
+        >
+          ▶ Replay Path
+        </button>
+        <button
+          class="btn btn-calib"
+          id="calibReBtn"
+          style="display: none"
+          onclick="openCalibration()"
+        >
+          ↺ Re-Calibrate
+        </button>
+        <div class="div"></div>
+        <div class="cl" style="margin-bottom: 0">📡 Rover Info</div>
+        <div class="ir">
+          <span class="irl">State</span><span class="irv" id="irState">—</span>
+        </div>
+        <div class="ir">
+          <span class="irl">Activity</span
+          ><span class="irv" id="irSub" style="color: var(--gn)">—</span>
+        </div>
+        <div class="ir">
+          <span class="irl">Calib WPs</span
+          ><span class="irv" id="irWPs" style="color: var(--pu)">0</span>
+        </div>
+        <div class="ir">
+          <span class="irl">Spray Zones</span
+          ><span class="irv" id="irZones" style="color: var(--red)">0</span>
+        </div>
+      </div>
+
+      <div
+        class="card"
+        style="
+          grid-column: 1/3;
+          grid-row: 3/5;
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+        "
+      >
+        <div class="cl">⚠ Field Alerts</div>
+        <div
+          class="al-list"
+          id="alList"
+          style="flex: 1; min-height: 0; overflow-y: auto"
+        >
+          <div class="no-al">
+            <span class="na-dot"></span>All systems nominal — no active alerts
+          </div>
+        </div>
+        <div style="height: 1px; background: var(--b); margin: 16px 0"></div>
+        <div class="cl">📍 Spray Zone Log</div>
+        <div
+          class="sl-list"
+          id="slList"
+          style="flex: 1; min-height: 0; overflow-y: auto"
+        >
+          <span style="color: var(--mt); font-size: 12px"
+            >No sprays logged yet</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── i18n ─────────────────────────────────────────────────────────────────────
+      const LANGS = {
+        en: {
+          flag: "🇬🇧",
+          label: "EN",
+          font: "'DM Sans',sans-serif",
+          logoSub: "Just Another Rover for Vegetation Inspection & Spraying",
+          waiting: "Waiting for Rover",
+          offline: "Rover Offline",
+          online: "Online",
+          thermal: "🌡 Thermal Shutdown",
+          calibrating: "🎯 Calibrating",
+          replaying: "▶ Replaying Path",
+          waitPhone: "⏳ Waiting for Phone",
+          lowBat: "⚡ Low Battery",
+          lowTank: "💧 Low Tank",
+          weatherTitle: "🌦 Weather",
+          noRain: "✅ No rain — safe to spray",
+          raining: "🌧 Currently raining — spraying paused",
+          humidity: "Humidity",
+          wind: "Wind",
+          rainProb: "☔ Rain probability",
+          battery: "⚡ Battery",
+          tank: "💧 Tank Level",
+          temp: "🌡 Sys Temp",
+          sprays: "🌿 Sprays Today",
+          control: "🎮 Control",
+          startRover: "▶ Start Rover",
+          stopRover: "⏹ Stop Rover",
+          returnDock: "⬡ Return to Dock",
+          waitingEsp: "⏳ Waiting for ESP32",
+          waitingPhone: "⏳ Waiting for Phone",
+          batTooLow: "⚡ Battery Too Low",
+          tankTooLow: "💧 Tank Too Low",
+          replaying2: "▶ Replaying...",
+          calibTitle: "🎯 Calibration",
+          startCalib: "🎯 Start Calibration",
+          doneRec: "✅ Done Recording",
+          cancel: "✕ Cancel",
+          replayPath: "▶ Replay Path",
+          reCalib: "↺ Re-Calibrate",
+          recording: "🔴 RECORDING PATH",
+          driveHint: "Drive the rover with the pad below",
+          pathSaved: "✅ PATH SAVED",
+          waypoints: "waypoints",
+          wpRecorded: "waypoints recorded",
+          gpsGuided: "GPS guided",
+          padTitle: "🎯 Manual Drive",
+          padHint: "Hold to drive • Release to stop",
+          replayingPath: "▶ REPLAYING PATH",
+          roverInfo: "📡 Rover Info",
+          state: "State",
+          activity: "Activity",
+          calibWPs: "Calib WPs",
+          sprayZones: "Spray Zones",
+          fieldAlerts: "⚠ Field Alerts",
+          allNominal: "All systems nominal — no active alerts",
+          sprayLog: "📍 Spray Zone Log",
+          noSprays: "No sprays logged yet",
+          followRover: "📍 Follow Rover",
+          followOff: "📍 Follow: Off",
+          clearTrail: "🗑 Clear Trail",
+          rover: "Rover",
+          dock: "Dock",
+          trail: "Trail",
+          sprayed: "Sprayed",
+          calibPath: "Calib Path",
+          serverUnreachable: "Cannot reach server — is app.py running?",
+        },
+        ta: {
+          flag: "🇮🇳",
+          label: "தமிழ்",
+          font: "'Noto Sans Tamil',sans-serif",
+          logoSub: "தாவர ஆய்வு மற்றும் தெளிப்புக்கான ரோவர்",
+          waiting: "ரோவருக்காக காத்திருக்கிறது",
+          offline: "ரோவர் ஆஃப்லைன்",
+          online: "ஆன்லைன்",
+          thermal: "🌡 வெப்ப நிறுத்தம்",
+          calibrating: "🎯 அளவுத்திருத்தம்",
+          replaying: "▶ பாதை மீண்டும்",
+          waitPhone: "⏳ போனுக்காக காத்திருக்கிறது",
+          lowBat: "⚡ குறைந்த பேட்டரி",
+          lowTank: "💧 குறைந்த தொட்டி",
+          weatherTitle: "🌦 வானிலை",
+          noRain: "✅ மழை இல்லை — தெளிக்கலாம்",
+          raining: "🌧 மழை — தெளிப்பு நிறுத்தம்",
+          humidity: "ஈரப்பதம்",
+          wind: "காற்று",
+          rainProb: "☔ மழை நிகழ்தகவு",
+          battery: "⚡ பேட்டரி",
+          tank: "💧 தொட்டி நிலை",
+          temp: "🌡 வெப்பநிலை",
+          sprays: "🌿 இன்றைய தெளிப்புகள்",
+          control: "🎮 கட்டுப்பாடு",
+          startRover: "▶ ரோவர் தொடங்கு",
+          stopRover: "⏹ ரோவர் நிறுத்து",
+          returnDock: "⬡ நிலையம் திரும்பு",
+          waitingEsp: "⏳ ESP32 காத்திருக்கிறது",
+          waitingPhone: "⏳ போன் காத்திருக்கிறது",
+          batTooLow: "⚡ பேட்டரி குறைவு",
+          tankTooLow: "💧 தொட்டி குறைவு",
+          replaying2: "▶ மீண்டும்...",
+          calibTitle: "🎯 அளவுத்திருத்தம்",
+          startCalib: "🎯 அளவுத்திருத்தம் தொடங்கு",
+          doneRec: "✅ பதிவு முடிந்தது",
+          cancel: "✕ ரத்து",
+          replayPath: "▶ பாதை மீண்டும்",
+          reCalib: "↺ மீண்டும் அமை",
+          recording: "🔴 பதிவு செய்கிறது",
+          driveHint: "கீழே திண்டு மூலம் இயக்கவும்",
+          pathSaved: "✅ பாதை சேமிக்கப்பட்டது",
+          waypoints: "வழிமுனைகள்",
+          wpRecorded: "வழிமுனைகள் பதிவு",
+          gpsGuided: "GPS வழிகாட்டுதல்",
+          padTitle: "🎯 கைமுறை இயக்கம்",
+          padHint: "அழுத்திப் பிடி • விட்டு விடு",
+          replayingPath: "▶ பாதை மீண்டும்",
+          roverInfo: "📡 ரோவர் தகவல்",
+          state: "நிலை",
+          activity: "செயல்பாடு",
+          calibWPs: "அளவு புள்ளிகள்",
+          sprayZones: "தெளிப்பு மண்டலங்கள்",
+          fieldAlerts: "⚠ வயல் எச்சரிக்கைகள்",
+          allNominal: "அனைத்தும் சாதாரணம் — எச்சரிக்கை இல்லை",
+          sprayLog: "📍 தெளிப்பு பதிவு",
+          noSprays: "தெளிப்புகள் பதிவு இல்லை",
+          followRover: "📍 ரோவரை பின்தொடர்",
+          followOff: "📍 பின்தொடர்வு: ஆஃப்",
+          clearTrail: "🗑 தடம் அழி",
+          rover: "ரோவர்",
+          dock: "நிலையம்",
+          trail: "தடம்",
+          sprayed: "தெளிக்கப்பட்டது",
+          calibPath: "பயிற்சி பாதை",
+          serverUnreachable: "சர்வரை அடைய முடியவில்லை",
+        },
+        hi: {
+          flag: "🇮🇳",
+          label: "हिन्दी",
+          font: "'Noto Sans Devanagari',sans-serif",
+          logoSub: "वनस्पति निरीक्षण और छिड़काव के लिए रोवर",
+          waiting: "रोवर का इंतजार",
+          offline: "रोवर ऑफलाइन",
+          online: "ऑनलाइन",
+          thermal: "🌡 ताप बंद",
+          calibrating: "🎯 अंशांकन",
+          replaying: "▶ पथ दोहराना",
+          waitPhone: "⏳ फोन का इंतजार",
+          lowBat: "⚡ कम बैटरी",
+          lowTank: "💧 कम टैंक",
+          weatherTitle: "🌦 मौसम",
+          noRain: "✅ बारिश नहीं — छिड़काव सुरक्षित",
+          raining: "🌧 बारिश — छिड़काव रुका",
+          humidity: "आर्द्रता",
+          wind: "हवा",
+          rainProb: "☔ वर्षा संभावना",
+          battery: "⚡ बैटरी",
+          tank: "💧 टैंक स्तर",
+          temp: "🌡 तापमान",
+          sprays: "🌿 आज के छिड़काव",
+          control: "🎮 नियंत्रण",
+          startRover: "▶ रोवर शुरू",
+          stopRover: "⏹ रोवर रोकें",
+          returnDock: "⬡ डॉक पर वापस",
+          waitingEsp: "⏳ ESP32 का इंतजार",
+          waitingPhone: "⏳ फोन का इंतजार",
+          batTooLow: "⚡ बैटरी कम",
+          tankTooLow: "💧 टैंक कम",
+          replaying2: "▶ दोहरा रहा है...",
+          calibTitle: "🎯 अंशांकन",
+          startCalib: "🎯 अंशांकन शुरू",
+          doneRec: "✅ रिकॉर्डिंग पूरी",
+          cancel: "✕ रद्द",
+          replayPath: "▶ पथ दोहराएं",
+          reCalib: "↺ फिर अंशांकन",
+          recording: "🔴 पथ रिकॉर्ड हो रहा है",
+          driveHint: "नीचे पैड से रोवर चलाएं",
+          pathSaved: "✅ पथ सहेजा गया",
+          waypoints: "वेपॉइंट",
+          wpRecorded: "वेपॉइंट रिकॉर्ड",
+          gpsGuided: "GPS निर्देशित",
+          padTitle: "🎯 मैन्युअल ड्राइव",
+          padHint: "दबाएं • छोड़ने पर रुकें",
+          replayingPath: "▶ पथ दोहराया जा रहा है",
+          roverInfo: "📡 रोवर जानकारी",
+          state: "स्थिति",
+          activity: "गतिविधि",
+          calibWPs: "अंशांकन बिंदु",
+          sprayZones: "छिड़काव क्षेत्र",
+          fieldAlerts: "⚠ क्षेत्र अलर्ट",
+          allNominal: "सभी प्रणालियाँ सामान्य — कोई अलर्ट नहीं",
+          sprayLog: "📍 छिड़काव लॉग",
+          noSprays: "अभी तक कोई छिड़काव नहीं",
+          followRover: "📍 रोवर का अनुसरण",
+          followOff: "📍 अनुसरण: बंद",
+          clearTrail: "🗑 पथ साफ़",
+          rover: "रोवर",
+          dock: "डॉक",
+          trail: "पथ",
+          sprayed: "छिड़काव",
+          calibPath: "कैलिब पथ",
+          serverUnreachable: "सर्वर तक नहीं पहुँचा",
+        },
+        te: {
+          flag: "🇮🇳",
+          label: "తెలుగు",
+          font: "'Noto Sans Telugu',sans-serif",
+          logoSub: "వృక్ష తనిఖీ మరియు స్ప్రే కోసం రోవర్",
+          waiting: "రోవర్ కోసం వేచి ఉంది",
+          offline: "రోవర్ ఆఫ్‌లైన్",
+          online: "ఆన్‌లైన్",
+          thermal: "🌡 థర్మల్ షట్‌డౌన్",
+          calibrating: "🎯 క్రమాంకనం",
+          replaying: "▶ మార్గం మళ్ళీ",
+          waitPhone: "⏳ ఫోన్ కోసం వేచి",
+          lowBat: "⚡ తక్కువ బ్యాటరీ",
+          lowTank: "💧 తక్కువ ట్యాంక్",
+          weatherTitle: "🌦 వాతావరణం",
+          noRain: "✅ వర్షం లేదు — స్ప్రే చేయవచ్చు",
+          raining: "🌧 వర్షం — స్ప్రే ఆగింది",
+          humidity: "తేమ",
+          wind: "గాలి",
+          rainProb: "☔ వర్షపు అవకాశం",
+          battery: "⚡ బ్యాటరీ",
+          tank: "💧 ట్యాంక్ స్థాయి",
+          temp: "🌡 వేడిమి",
+          sprays: "🌿 నేటి స్ప్రేలు",
+          control: "🎮 నియంత్రణ",
+          startRover: "▶ రోవర్ ప్రారంభించు",
+          stopRover: "⏹ రోవర్ ఆపు",
+          returnDock: "⬡ డాక్‌కు తిరిగిరా",
+          waitingEsp: "⏳ ESP32 కోసం వేచి",
+          waitingPhone: "⏳ ఫోన్ కోసం వేచి",
+          batTooLow: "⚡ బ్యాటరీ తక్కువ",
+          tankTooLow: "💧 ట్యాంక్ తక్కువ",
+          replaying2: "▶ మళ్ళీ...",
+          calibTitle: "🎯 క్రమాంకనం",
+          startCalib: "🎯 క్రమాంకనం ప్రారంభించు",
+          doneRec: "✅ రికార్డింగ్ పూర్తి",
+          cancel: "✕ రద్దు",
+          replayPath: "▶ మార్గం మళ్ళీ",
+          reCalib: "↺ మళ్ళీ క్రమాంకనం",
+          recording: "🔴 మార్గం రికార్డు",
+          driveHint: "క్రింద ప్యాడ్‌తో నడపండి",
+          pathSaved: "✅ మార్గం సేవ్ అయింది",
+          waypoints: "పాయింట్లు",
+          wpRecorded: "పాయింట్లు నమోదు",
+          gpsGuided: "GPS నిర్దేశించబడింది",
+          padTitle: "🎯 మాన్యువల్ డ్రైవ్",
+          padHint: "నొక్కి పట్టు • వదిలితే ఆగు",
+          replayingPath: "▶ మార్గం మళ్ళీ",
+          roverInfo: "📡 రోవర్ సమాచారం",
+          state: "స్థితి",
+          activity: "కార్యకలాపం",
+          calibWPs: "క్రమాంకన పాయింట్లు",
+          sprayZones: "స్ప్రే జోన్లు",
+          fieldAlerts: "⚠ ఫీల్డ్ హెచ్చరికలు",
+          allNominal: "అన్ని వ్యవస్థలు సాధారణం — హెచ్చరికలు లేవు",
+          sprayLog: "📍 స్ప్రే లాగ్",
+          noSprays: "ఇంకా స్ప్రేలు లేవు",
+          followRover: "📍 రోవర్ అనుసరించు",
+          followOff: "📍 అనుసరణ: ఆఫ్",
+          clearTrail: "🗑 ట్రెయిల్ క్లియర్",
+          rover: "రోవర్",
+          dock: "డాక్",
+          trail: "ట్రెయిల్",
+          sprayed: "స్ప్రే అయింది",
+          calibPath: "కాలిబ్ మార్గం",
+          serverUnreachable: "సర్వర్‌కు చేరుకోలేకపోయింది",
+        },
+        kn: {
+          flag: "🇮🇳",
+          label: "ಕನ್ನಡ",
+          font: "'Noto Sans Kannada',sans-serif",
+          logoSub: "ಸಸ್ಯ ತಪಾಸಣೆ ಮತ್ತು ಸ್ಪ್ರೇಗಾಗಿ ರೋವರ್",
+          waiting: "ರೋವರ್ ಗಾಗಿ ಕಾಯುತ್ತಿದೆ",
+          offline: "ರೋವರ್ ಆಫ್‌ಲೈನ್",
+          online: "ಆನ್‌ಲೈನ್",
+          thermal: "🌡 ಉಷ್ಣ ಸ್ಥಗಿತ",
+          calibrating: "🎯 ಕ್ರಮಾಂಕನ",
+          replaying: "▶ ಮಾರ್ಗ ಮರುಕಳಿಸು",
+          waitPhone: "⏳ ಫೋನ್ ಗಾಗಿ ಕಾಯುತ್ತಿದೆ",
+          lowBat: "⚡ ಕಡಿಮೆ ಬ್ಯಾಟರಿ",
+          lowTank: "💧 ಕಡಿಮೆ ಟ್ಯಾಂಕ್",
+          weatherTitle: "🌦 ಹವಾಮಾನ",
+          noRain: "✅ ಮಳೆ ಇಲ್ಲ — ಸ್ಪ್ರೇ ಮಾಡಬಹುದು",
+          raining: "🌧 ಮಳೆ — ಸ್ಪ್ರೇ ನಿಂತಿದೆ",
+          humidity: "ತೇವಾಂಶ",
+          wind: "ಗಾಳಿ",
+          rainProb: "☔ ಮಳೆ ಸಂಭಾವ್ಯತೆ",
+          battery: "⚡ ಬ್ಯಾಟರಿ",
+          tank: "💧 ಟ್ಯಾಂಕ್ ಮಟ್ಟ",
+          temp: "🌡 ಉಷ್ಣಾಂಶ",
+          sprays: "🌿 ಇಂದಿನ ಸ್ಪ್ರೇಗಳು",
+          control: "🎮 ನಿಯಂತ್ರಣ",
+          startRover: "▶ ರೋವರ್ ಪ್ರಾರಂಭಿಸಿ",
+          stopRover: "⏹ ರೋವರ್ ನಿಲ್ಲಿಸಿ",
+          returnDock: "⬡ ಡಾಕ್‌ಗೆ ಹಿಂತಿರುಗಿ",
+          waitingEsp: "⏳ ESP32 ಗಾಗಿ ಕಾಯಿರಿ",
+          waitingPhone: "⏳ ಫೋನ್ ಗಾಗಿ ಕಾಯಿರಿ",
+          batTooLow: "⚡ ಬ್ಯಾಟರಿ ಕಡಿಮೆ",
+          tankTooLow: "💧 ಟ್ಯಾಂಕ್ ಕಡಿಮೆ",
+          replaying2: "▶ ಮರುಕಳಿಸುತ್ತಿದೆ...",
+          calibTitle: "🎯 ಕ್ರಮಾಂಕನ",
+          startCalib: "🎯 ಕ್ರಮಾಂಕನ ಪ್ರಾರಂಭಿಸಿ",
+          doneRec: "✅ ರೆಕಾರ್ಡಿಂಗ್ ಮುಗಿದಿದೆ",
+          cancel: "✕ ರದ್ದು",
+          replayPath: "▶ ಮಾರ್ಗ ಮರುಕಳಿಸು",
+          reCalib: "↺ ಮತ್ತೆ ಕ್ರಮಾಂಕನ",
+          recording: "🔴 ಮಾರ್ಗ ರೆಕಾರ್ಡ್",
+          driveHint: "ಕೆಳಗಿನ ಪ್ಯಾಡ್ ಮೂಲಕ ಚಾಲನೆ ಮಾಡಿ",
+          pathSaved: "✅ ಮಾರ್ಗ ಉಳಿಸಲಾಗಿದೆ",
+          waypoints: "ಪಾಯಿಂಟ್‌ಗಳು",
+          wpRecorded: "ಪಾಯಿಂಟ್ ದಾಖಲೆ",
+          gpsGuided: "GPS ನಿರ್ದೇಶಿತ",
+          padTitle: "🎯 ಕೈಪಿಡಿ ಚಾಲನೆ",
+          padHint: "ಒತ್ತಿ ಹಿಡಿಯಿರಿ • ಬಿಟ್ಟರೆ ನಿಲ್ಲಿಸು",
+          replayingPath: "▶ ಮಾರ್ಗ ಮರುಕಳಿಸುತ್ತಿದೆ",
+          roverInfo: "📡 ರೋವರ್ ಮಾಹಿತಿ",
+          state: "ಸ್ಥಿತಿ",
+          activity: "ಚಟುವಟಿಕೆ",
+          calibWPs: "ಕ್ಯಾಲಿಬ್ ಪಾಯಿಂಟ್‌ಗಳು",
+          sprayZones: "ಸ್ಪ್ರೇ ವಲಯಗಳು",
+          fieldAlerts: "⚠ ಕ್ಷೇತ್ರ ಎಚ್ಚರಿಕೆಗಳು",
+          allNominal: "ಎಲ್ಲಾ ವ್ಯವಸ್ಥೆಗಳು ಸಾಮಾನ್ಯ — ಎಚ್ಚರಿಕೆಗಳಿಲ್ಲ",
+          sprayLog: "📍 ಸ್ಪ್ರೇ ಲಾಗ್",
+          noSprays: "ಇನ್ನೂ ಸ್ಪ್ರೇಗಳು ಇಲ್ಲ",
+          followRover: "📍 ರೋವರ್ ಅನುಸರಿಸಿ",
+          followOff: "📍 ಅನುಸರಣೆ: ಆಫ್",
+          clearTrail: "🗑 ಟ್ರೇಲ್ ತೆರವು",
+          rover: "ರೋವರ್",
+          dock: "ಡಾಕ್",
+          trail: "ಟ್ರೇಲ್",
+          sprayed: "ಸ್ಪ್ರೇ ಆಯಿತು",
+          calibPath: "ಕ್ಯಾಲಿಬ್ ಮಾರ್ಗ",
+          serverUnreachable: "ಸರ್ವರ್ ತಲುಪಲಾಗಲಿಲ್ಲ",
+        },
+        ml: {
+          flag: "🇮🇳",
+          label: "മലയാളം",
+          font: "'Noto Sans Malayalam',sans-serif",
+          logoSub: "സസ്യ പരിശോധനയ്ക്കും തളിക്കലിനുമുള്ള റോവർ",
+          waiting: "റോവറിനായി കാത്തിരിക്കുന്നു",
+          offline: "റോവർ ഓഫ്‌ലൈൻ",
+          online: "ഓൺലൈൻ",
+          thermal: "🌡 താപ നിർത്തൽ",
+          calibrating: "🎯 കാലിബ്രേഷൻ",
+          replaying: "▶ പാത്ത് വീണ്ടും",
+          waitPhone: "⏳ ഫോണിനായി കാത്തിരിക്കുന്നു",
+          lowBat: "⚡ കുറഞ്ഞ ബാറ്ററി",
+          lowTank: "💧 കുറഞ്ഞ ടാങ്ക്",
+          weatherTitle: "🌦 കാലാവസ്ഥ",
+          noRain: "✅ മഴ ഇല്ല — സ്പ്രേ ചെയ്യാം",
+          raining: "🌧 മഴ — സ്പ്രേ നിർത്തി",
+          humidity: "ആർദ്രത",
+          wind: "കാറ്റ്",
+          rainProb: "☔ മഴ സംഭാവ്യത",
+          battery: "⚡ ബാറ്ററി",
+          tank: "💧 ടാങ്ക് നില",
+          temp: "🌡 താപനില",
+          sprays: "🌿 ഇന്നത്തെ സ്പ്രേകൾ",
+          control: "🎮 നിയന്ത്രണം",
+          startRover: "▶ റോവർ ആരംഭിക്കുക",
+          stopRover: "⏹ റോവർ നിർത്തുക",
+          returnDock: "⬡ ഡോക്കിലേക്ക് മടങ്ങുക",
+          waitingEsp: "⏳ ESP32 നായി കാത്തിരിക്കുന്നു",
+          waitingPhone: "⏳ ഫോണിനായി കാത്തിരിക്കുന്നു",
+          batTooLow: "⚡ ബാറ്ററി കുറവ്",
+          tankTooLow: "💧 ടാങ്ക് കുറവ്",
+          replaying2: "▶ വീണ്ടും...",
+          calibTitle: "🎯 കാലിബ്രേഷൻ",
+          startCalib: "🎯 കാലിബ്രേഷൻ ആരംഭിക്കുക",
+          doneRec: "✅ റെക്കോർഡിംഗ് പൂർത്തി",
+          cancel: "✕ റദ്ദാക്കുക",
+          replayPath: "▶ പാത്ത് വീണ്ടും",
+          reCalib: "↺ വീണ്ടും കാലിബ്രേറ്റ്",
+          recording: "🔴 പാത്ത് റെക്കോർഡ്",
+          driveHint: "താഴെ പാഡ് ഉപയോഗിച്ച് ഓടിക്കുക",
+          pathSaved: "✅ പാത്ത് സേവ് ചെയ്തു",
+          waypoints: "പോയിന്റുകൾ",
+          wpRecorded: "പോയിന്റുകൾ രേഖ",
+          gpsGuided: "GPS നിർദ്ദേശിതം",
+          padTitle: "🎯 മാനുവൽ ഡ്രൈവ്",
+          padHint: "അമർത്തിപ്പിടിക്കുക • വിടുമ്പോൾ നിൽക്കുക",
+          replayingPath: "▶ പാത്ത് വീണ്ടും",
+          roverInfo: "📡 റോവർ വിവരങ്ങൾ",
+          state: "അവസ്ഥ",
+          activity: "പ്രവർത്തനം",
+          calibWPs: "കാലിബ് പോയിന്റുകൾ",
+          sprayZones: "സ്പ്രേ സോണുകൾ",
+          fieldAlerts: "⚠ ഫീൽഡ് അലേർട്ടുകൾ",
+          allNominal: "എല്ലാ സിസ്റ്റങ്ങളും സാധാരണം — അലേർട്ടുകൾ ഇല്ല",
+          sprayLog: "📍 സ്പ്രേ ലോഗ്",
+          noSprays: "ഇതുവരെ സ്പ്രേകൾ ഇല്ല",
+          followRover: "📍 റോവർ പിന്തുടരുക",
+          followOff: "📍 പിന്തുടരൽ: ഓഫ്",
+          clearTrail: "🗑 ട്രെയിൽ മായ്ക്കുക",
+          rover: "റോവർ",
+          dock: "ഡോക്ക്",
+          trail: "ട്രെയിൽ",
+          sprayed: "തളിച്ചു",
+          calibPath: "കാലിബ് പാത",
+          serverUnreachable: "സർവർ ലഭ്യമല്ല",
+        },
+      };
+      let currentLang = localStorage.getItem("jarvis-lang") || "en";
+      function t(key) {
+        return (LANGS[currentLang] || LANGS.en)[key] || LANGS.en[key] || key;
+      }
+      function applyLang() {
+        const L = LANGS[currentLang] || LANGS.en;
+        document.body.style.fontFamily = L.font;
+        document.getElementById("langFlag").textContent = L.flag;
+        document.getElementById("langLabel").textContent = L.label;
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((el) =>
+            el.classList.toggle("active", el.dataset.lang === currentLang),
+          );
+        document.querySelector(".logo em").textContent = L.logoSub;
+        const wxCard = document.querySelector(".wx-card .cl");
+        if (wxCard) wxCard.textContent = t("weatherTitle") + " — Chennai";
+        const wxsls = document.querySelectorAll(".wxsl");
+        if (wxsls[0]) wxsls[0].textContent = t("humidity");
+        if (wxsls[1]) wxsls[1].textContent = t("wind");
+        const wxrl = document.querySelector(".wx-rl span");
+        if (wxrl) wxrl.textContent = t("rainProb");
+        const statCls = document.querySelectorAll(".stats-row .cl");
+        if (statCls[0]) statCls[0].textContent = t("battery");
+        if (statCls[1]) statCls[1].textContent = t("tank");
+        if (statCls[2]) statCls[2].textContent = t("temp");
+        if (statCls[3]) statCls[3].textContent = t("sprays");
+        const ctrlCls = document.querySelectorAll(".ctrl .cl");
+        if (ctrlCls[0]) ctrlCls[0].textContent = t("control");
+        if (ctrlCls[1]) ctrlCls[1].textContent = t("calibTitle");
+        if (ctrlCls[2]) ctrlCls[2].textContent = t("roverInfo");
+        const byId = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val;
+        };
+        byId("dockBtn", t("returnDock"));
+        byId("calibStartBtn", t("startCalib"));
+        byId("calibDoneBtn", t("doneRec"));
+        byId("calibCancelBtn", t("cancel"));
+        byId("calibReplayBtn", t("replayPath"));
+        byId("calibReBtn", t("reCalib"));
+        byId("startBtn", roverRunning ? t("stopRover") : t("startRover"));
+        const irls = document.querySelectorAll(".irl");
+        if (irls[0]) irls[0].textContent = t("state");
+        if (irls[1]) irls[1].textContent = t("activity");
+        if (irls[2]) irls[2].textContent = t("calibWPs");
+        if (irls[3]) irls[3].textContent = t("sprayZones");
+        const lastCard = document.querySelector(".dash > .card:last-child");
+        if (lastCard) {
+          const cls = lastCard.querySelectorAll(".cl");
+          if (cls[0]) cls[0].textContent = t("fieldAlerts");
+          if (cls[1]) cls[1].textContent = t("sprayLog");
+        }
+        const ldSpans = document.querySelectorAll(".map-legend span");
+        if (ldSpans[0]) ldSpans[0].textContent = t("rover");
+        if (ldSpans[1]) ldSpans[1].textContent = t("dock");
+        if (ldSpans[2]) ldSpans[2].textContent = t("trail");
+        if (ldSpans[3]) ldSpans[3].textContent = t("sprayed");
+        if (ldSpans[4]) ldSpans[4].textContent = t("calibPath");
+        const fb = document.getElementById("followBtn");
+        if (fb) fb.textContent = followMode ? t("followRover") : t("followOff");
+        const pt = document.getElementById("padTitle");
+        if (pt) pt.textContent = t("padTitle");
+        const ph = document.getElementById("padHint");
+        if (ph) ph.textContent = t("padHint");
+        const rl = document.querySelector(
+          "#replayBar .rb-label span:first-child",
+        );
+        if (rl) rl.textContent = t("replayingPath");
+      }
+      function setLang(code) {
+        currentLang = code;
+        localStorage.setItem("jarvis-lang", code);
+        applyLang();
+        closeLangDrop();
+      }
+      function toggleLangDrop() {
+        document.getElementById("langDrop").classList.toggle("open");
+      }
+      function closeLangDrop() {
+        document.getElementById("langDrop").classList.remove("open");
+      }
+      document.addEventListener("click", (e) => {
+        if (!document.getElementById("langWrap").contains(e.target))
+          closeLangDrop();
+      });
+
+      // ── Clock ─────────────────────────────────────────────────────────────────────
+      setInterval(() => {
+        document.getElementById("clk").textContent =
+          new Date().toLocaleTimeString("en-IN", { hour12: false }) + " IST";
+      }, 1000);
+
+      // ── Map ───────────────────────────────────────────────────────────────────────
+      const INIT = [12.9998, 80.2209];
+      const map = L.map("map", {
+        zoomControl: true,
+        attributionControl: false,
+        maxZoom: 22,
+      }).setView(INIT, 19);
+      L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+        maxZoom: 22,
+        maxNativeZoom: 21,
+      }).addTo(map);
+      const rIcon = L.divIcon({
+        className: "",
+        html: '<div class="rover-dot" id="rDot"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+      const rMarker = L.marker(INIT, { icon: rIcon, zIndexOffset: 1000 })
+        .addTo(map)
+        .bindPopup('<b style="color:#22c55e">J.A.R.V.I.S Rover</b>');
+      const dockIcon = L.divIcon({
+        className: "",
+        html: '<div class="dock-dot">⚡</div>',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+      });
+      const dockMarker = L.marker([0, 0], {
+        icon: dockIcon,
+        zIndexOffset: 999,
+        opacity: 0,
+      })
+        .addTo(map)
+        .bindPopup('<b style="color:#f59e0b">⚡ Dock Station</b>');
+
+      // ── Trail & spray markers ─────────────────────────────────────────────────────
+      let followMode = true,
+        trailPts = [],
+        trailLine = null,
+        sprayMks = [],
+        lastSprayLen = 0;
+      function toggleFollow() {
+        followMode = !followMode;
+        const b = document.getElementById("followBtn");
+        b.style.borderColor = followMode ? "rgba(34,197,94,.5)" : "var(--b)";
+        b.style.color = followMode ? "var(--gn)" : "var(--tx)";
+        b.textContent = followMode ? t("followRover") : t("followOff");
+      }
+      function clearTrail() {
+        trailPts = [];
+        if (trailLine) {
+          map.removeLayer(trailLine);
+          trailLine = null;
+        }
+        sprayMks.forEach((m) => map.removeLayer(m));
+        sprayMks = [];
+        lastSprayLen = 0;
+      }
+      function hav(a, b) {
+        const R = 6371000,
+          r = Math.PI / 180,
+          dL = (b[0] - a[0]) * r,
+          dN = (b[1] - a[1]) * r,
+          x =
+            Math.sin(dL / 2) ** 2 +
+            Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dN / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+      }
+      let lastTrailT = 0;
+      function updateTrail(lat, lon) {
+        const now = Date.now(),
+          last = trailPts[trailPts.length - 1];
+        if (last) {
+          const d = hav(last, [lat, lon]);
+          if (d < 15 || d / ((now - lastTrailT) / 1000 || 1) > 3) return;
+        }
+        lastTrailT = now;
+        trailPts.push([lat, lon]);
+        if (trailLine) map.removeLayer(trailLine);
+        if (trailPts.length >= 2)
+          trailLine = L.polyline(trailPts, {
+            color: "#22c55e",
+            weight: 3,
+            opacity: 0.75,
+            lineJoin: "round",
+            lineCap: "round",
+          }).addTo(map);
+      }
+      function updateSprayMks(log) {
+        if (!log || log.length === lastSprayLen) return;
+        log.slice(lastSprayLen).forEach((s) => {
+          const lat = parseFloat(s.lat),
+            lon = parseFloat(s.lon);
+          if (isNaN(lat)) return;
+          const m = L.circleMarker([lat, lon], {
+            radius: 6,
+            color: "#ff2d2d",
+            fillColor: "#ff2d2d",
+            fillOpacity: 0.85,
+            weight: 2,
+          })
+            .addTo(map)
+            .bindPopup(`<b style="color:#ff6b6b">💧 Sprayed</b><br>${s.time}`);
+          sprayMks.push(m);
+        });
+        lastSprayLen = log.length;
+      }
+
+      // ── Calibration ───────────────────────────────────────────────────────────────
+      let calibMode = false,
+        calibPts = [],
+        calibLine = null,
+        calibS = null,
+        calibE = null,
+        dpadInt = null,
+        wpCount = 0;
+      const calibEls = (id) => document.getElementById(id);
+      function setCalibUI(s) {
+        [
+          "calibStartBtn",
+          "calibStatusChip",
+          "calibDoneBtn",
+          "calibCancelBtn",
+          "calibReplayBtn",
+          "calibReBtn",
+        ].forEach((id) => {
+          calibEls(id).style.display = "none";
+        });
+        calibEls("calibDrivePad").style.display = "none";
+        calibEls("replayBar").style.display = "none";
+        const sb = calibEls("startBtn"),
+          db = calibEls("dockBtn");
+        if (s === "idle") {
+          calibEls("calibStartBtn").style.display = "block";
+          sb.disabled = false;
+          db.disabled = false;
+        } else if (s === "recording") {
+          calibEls("calibStatusChip").style.display = "block";
+          calibEls("calibStatusChip").innerHTML =
+            `${t("recording")}<br><span style='color:#4a5568'>${t("driveHint")}</span>`;
+          calibEls("calibDoneBtn").style.display = "block";
+          calibEls("calibCancelBtn").style.display = "block";
+          calibEls("calibDrivePad").style.display = "block";
+          sb.disabled = true;
+          db.disabled = true;
+        } else if (s === "saved") {
+          calibEls("calibStatusChip").style.display = "block";
+          calibEls("calibStatusChip").innerHTML =
+            `${t("pathSaved")}<br><span style='color:#4a5568'>${wpCount} ${t("waypoints")}</span>`;
+          calibEls("calibReplayBtn").style.display = "block";
+          calibEls("calibReBtn").style.display = "block";
+          sb.disabled = false;
+          db.disabled = false;
+        } else if (s === "replaying") {
+          calibEls("calibStatusChip").style.display = "block";
+          calibEls("calibStatusChip").innerHTML =
+            `${t("replayingPath")}<br><span style='color:#4a5568'>${t("gpsGuided")}</span>`;
+          calibEls("calibCancelBtn").style.display = "block";
+          calibEls("replayBar").style.display = "block";
+          sb.disabled = true;
+          db.disabled = true;
+        }
+      }
+      async function openCalibration() {
+        try {
+          const r = await fetch("/calibrate/start", { method: "POST" }),
+            d = await r.json();
+          if (!d.ok) {
+            alert(d.error);
+            return;
+          }
+        } catch (e) {
+          alert("Cannot reach server");
+          return;
+        }
+        calibMode = true;
+        calibPts = [];
+        wpCount = 0;
+        [calibLine, calibS, calibE].forEach((l) => {
+          if (l) map.removeLayer(l);
+        });
+        calibLine = calibS = calibE = null;
+        setCalibUI("recording");
+        calibEls("padWpCtr").textContent = "0 " + t("wpRecorded");
+        setupDpad();
+      }
+      function setupDpad() {
+        document.querySelectorAll(".dpad-btn").forEach((btn) => {
+          const send = () => {
+            if (!calibMode) return;
+            fetch("/calibrate/steer", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                steer: btn.dataset.steer,
+                move: btn.dataset.move,
+              }),
+            }).catch(() => {});
+          };
+          const stop = () => {
+            btn.classList.remove("active");
+            clearInterval(dpadInt);
+            if (calibMode)
+              fetch("/calibrate/steer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ steer: "STOP", move: "STOP" }),
+              }).catch(() => {});
+          };
+          const start = (e) => {
+            e.preventDefault();
+            btn.classList.add("active");
+            send();
+            dpadInt = setInterval(send, 200);
+          };
+          ["mousedown", "touchstart"].forEach((ev) =>
+            btn.addEventListener(ev, start, { passive: false }),
+          );
+          ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach((ev) =>
+            btn.addEventListener(ev, stop),
+          );
+        });
+      }
+      const keyMap = {
+        ArrowUp: "CENTER",
+        ArrowLeft: "LEFT",
+        ArrowRight: "RIGHT",
+        ArrowDown: "STOP",
+        w: "CENTER",
+        a: "LEFT",
+        d: "RIGHT",
+        s: "STOP",
+      };
+      const keysHeld = new Set();
+      document.addEventListener("keydown", (e) => {
+        if (!calibMode || keysHeld.has(e.key)) return;
+        const st = keyMap[e.key];
+        if (!st) return;
+        keysHeld.add(e.key);
+        fetch("/calibrate/steer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            steer: st,
+            move: e.key === "ArrowDown" || e.key === "s" ? "STOP" : "FWD",
+          }),
+        }).catch(() => {});
+      });
+      document.addEventListener("keyup", (e) => {
+        if (!calibMode || !keysHeld.has(e.key)) return;
+        keysHeld.delete(e.key);
+        if (keyMap[e.key])
+          fetch("/calibrate/steer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ steer: "STOP", move: "STOP" }),
+          }).catch(() => {});
+      });
+      async function doneCalibration() {
+        try {
+          const r = await fetch("/calibrate/done", { method: "POST" }),
+            d = await r.json();
+          if (!d.ok) {
+            alert(d.error || "Error");
+            return;
+          }
+          calibMode = false;
+          wpCount = d.waypoints;
+          clearInterval(dpadInt);
+          if (d.end && calibPts.length) {
+            if (calibE) map.removeLayer(calibE);
+            calibE = L.circleMarker([d.end.lat, d.end.lon], {
+              radius: 8,
+              color: "#f59e0b",
+              fillColor: "#f59e0b",
+              fillOpacity: 1,
+              weight: 2,
+            })
+              .addTo(map)
+              .bindPopup('<b style="color:#f59e0b">🏁 End</b>');
+          }
+          setCalibUI("saved");
+        } catch (e) {
+          alert("Cannot reach server");
+        }
+      }
+      async function replayCalibration() {
+        try {
+          const r = await fetch("/calibrate/replay", { method: "POST" }),
+            d = await r.json();
+          if (!d.ok) {
+            alert(d.error || "Error");
+            return;
+          }
+          wpCount = d.waypoints;
+          setCalibUI("replaying");
+        } catch (e) {
+          alert("Cannot reach server");
+        }
+      }
+      async function cancelCalibration() {
+        try {
+          await fetch("/calibrate/cancel", { method: "POST" });
+        } catch (e) {}
+        calibMode = false;
+        clearInterval(dpadInt);
+        keysHeld.clear();
+        setCalibUI("idle");
+      }
+      function updateCalibPath(lat, lon) {
+        if (!calibMode) return;
+        const last = calibPts[calibPts.length - 1];
+        if (last && hav(last, [lat, lon]) < 0.5) return;
+        calibPts.push([lat, lon]);
+        if (calibLine) map.removeLayer(calibLine);
+        if (calibPts.length >= 2)
+          calibLine = L.polyline(calibPts, {
+            color: "#a78bfa",
+            weight: 3,
+            opacity: 0.9,
+            dashArray: "8 5",
+            lineJoin: "round",
+          }).addTo(map);
+        if (calibPts.length === 1) {
+          calibS = L.circleMarker([lat, lon], {
+            radius: 9,
+            color: "#22c55e",
+            fillColor: "#22c55e",
+            fillOpacity: 1,
+            weight: 2,
+          })
+            .addTo(map)
+            .bindPopup('<b style="color:#22c55e">🚦 Start</b>');
+        }
+        if (calibE) map.removeLayer(calibE);
+        calibE = L.circleMarker([lat, lon], {
+          radius: 7,
+          color: "#a78bfa",
+          fillColor: "#a78bfa",
+          fillOpacity: 0.8,
+          weight: 2,
+        }).addTo(map);
+        calibEls("padWpCtr").textContent =
+          calibPts.length + " " + t("wpRecorded");
+      }
+
+      // ── Weather ───────────────────────────────────────────────────────────────────
+      let wxRaining = false;
+      async function fetchWeather() {
+        try {
+          const r = await fetch("/weather");
+          if (!r.ok) throw 0;
+          const w = await r.json();
+          if (!w.ok) throw 0;
+          wxRaining = w.is_raining;
+          calibEls("wxi").textContent = w.icon;
+          calibEls("wxt").textContent = parseFloat(w.temp).toFixed(2) + "°C";
+          calibEls("wxd").textContent = w.desc;
+          calibEls("wxh").textContent = parseFloat(w.humidity).toFixed(2) + "%";
+          calibEls("wxw").textContent = parseFloat(w.wind).toFixed(2) + " km/h";
+          const rn = calibEls("wxrn");
+          rn.textContent = w.is_raining ? t("raining") : t("noRain");
+          rn.style.color = w.is_raining ? "#60a5fa" : "#22c55e";
+          calibEls("wxrp").textContent =
+            parseFloat(w.rain_percent).toFixed(2) + "%";
+          calibEls("wxrb").style.width = w.rain_percent + "%";
+        } catch (e) {
+          calibEls("wxd").textContent = "Unavailable";
+        }
+      }
+
+      // ── UI helpers ────────────────────────────────────────────────────────────────
+      const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+      const $ = (id) => document.getElementById(id);
+      function setPill(
+        status,
+        state,
+        tempShutdown,
+        batLow,
+        tankLow,
+        calib,
+        replay,
+        phoneOk,
+      ) {
+        const p = $("pill"),
+          pTxt = $("pillTxt");
+        p.className = "pill";
+        if (tempShutdown) {
+          p.classList.add("p-hot");
+          pTxt.textContent = t("thermal");
+        } else if (calib) {
+          p.classList.add("p-calib");
+          pTxt.textContent = t("calibrating");
+        } else if (replay) {
+          p.classList.add("p-calib");
+          pTxt.textContent = t("replaying");
+        } else if (status === "Waiting") {
+          p.classList.add("p-wait");
+          pTxt.textContent = t("waiting");
+        } else if (status === "Offline") {
+          p.classList.add("p-off");
+          pTxt.textContent = t("offline");
+        } else if (status === "Online" && !phoneOk) {
+          p.classList.add("p-warn");
+          pTxt.textContent = t("waitPhone");
+        } else if (batLow || tankLow) {
+          p.classList.add("p-warn");
+          pTxt.textContent = batLow ? t("lowBat") : t("lowTank");
+        } else {
+          p.classList.add("p-on");
+          pTxt.textContent = state ? cap(state) : t("online");
+        }
+      }
+      function setShutdown(active, temp) {
+        const ov = $("shutdownOverlay");
+        if (active) {
+          ov.classList.add("show");
+          $("soTempVal").textContent = parseFloat(temp).toFixed(1) + "°C";
+          $("soBar").style.width =
+            Math.max(0, Math.min(100, ((temp - 45) / (75 - 45)) * 100)) + "%";
+          $("startBtn").disabled = true;
+          $("dockBtn").disabled = true;
+        } else ov.classList.remove("show");
+      }
+      function setTemp(tmp) {
+        const col =
+          tmp >= 75
+            ? "#ff4400"
+            : tmp > 60
+              ? "var(--red)"
+              : tmp > 45
+                ? "var(--am)"
+                : "var(--gn)";
+        $("tV").textContent = parseFloat(tmp).toFixed(2) + "°C";
+        $("tV").style.color = col;
+        const tb = $("tBar");
+        tb.style.width = Math.min(100, (tmp / 80) * 100) + "%";
+        tb.className =
+          "bf " + (tmp >= 75 || tmp > 60 ? "br" : tmp > 45 ? "ba" : "bg");
+      }
+      function setSprayDots(n) {
+        const el = $("spD");
+        el.innerHTML = "";
+        for (let i = 0; i < Math.max(10, n); i++) {
+          const d = document.createElement("div");
+          d.className = "sd" + (i < n ? " on" : "");
+          el.appendChild(d);
+        }
+      }
+      function batCls(p) {
+        return "bf " + (p > 50 ? "bg" : p > 20 ? "ba" : "br");
+      }
+      function setAlerts(arr) {
+        const el = $("alList");
+        let a = Array.isArray(arr) ? arr : [];
+        a = a.map((x) => {
+          if (x.includes("Rover signal lost") || x.includes("Rover offline"))
+            return "⚡ " + t("offline");
+          if (x.includes("THERMAL SHUTDOWN")) return t("thermal");
+          if (x.includes("Low battery")) return t("lowBat");
+          if (x.includes("Tank critical")) return t("lowTank");
+          if (x.includes("Raining now")) return t("raining");
+          if (x.includes("CALIBRATION")) return t("calibrating");
+          if (x.includes("Replaying path")) return t("replaying");
+          return x;
+        });
+        if (wxRaining && !a.some((x) => x.toLowerCase().includes("rain")))
+          a = [t("raining"), ...a];
+        el.innerHTML =
+          a.length === 0
+            ? `<div class="no-al"><span class="na-dot"></span>${t("allNominal")}</div>`
+            : a
+                .map(
+                  (x) =>
+                    `<div class="al-item"><span class="adot"></span>${x}</div>`,
+                )
+                .join("");
+      }
+      function setSprayLog(log) {
+        if (!log || log.length === 0) {
+          $("slList").innerHTML =
+            `<span style="color:var(--mt);font-size:12px">${t("noSprays")}</span>`;
+          return;
+        }
+        $("irZones").textContent = log.length;
+        $("slList").innerHTML = log
+          .slice()
+          .reverse()
+          .slice(0, 30)
+          .map(
+            (s) =>
+              `<div class="sl-item">📍 ${Number(s.lat).toFixed(4)}, ${Number(s.lon).toFixed(4)} @ ${s.time}</div>`,
+          )
+          .join("");
+      }
+
+      // ── Poll ──────────────────────────────────────────────────────────────────────
+      let failCount = 0,
+        roverRunning = false,
+        wasReplaying = false;
+      async function poll() {
+        try {
+          const r = await fetch("/data");
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          const d = await r.json();
+          failCount = 0;
+          const tsd = d.temp_shutdown || false,
+            bat = parseFloat(d.battery) || 0,
+            tank = parseFloat(d.tank) || 0;
+          const batRead = d.battery >= 0; // -1 means ESP32 hasn't sent a reading yet
+          const batLow = d.status === "Online" && batRead && bat < 15,
+            tankLow = d.status === "Online" && tank < 10;
+          const phoneOk = d.phone_connected || false;
+          const espOk = d.status === "Online";
+          const bothReady = espOk && phoneOk; // both must be connected to allow start/calib
+          const isCalib = d.calibrating || false,
+            isReplay = d.calib_replay || false,
+            wps = d.calib_waypoints || 0;
+
+          if (!isCalib && !isReplay && calibMode) {
+            calibMode = false;
+            clearInterval(dpadInt);
+          }
+          if (isReplay && !wasReplaying) setCalibUI("replaying");
+          if (!isReplay && wasReplaying) {
+            wpCount = wps;
+            setCalibUI("saved");
+          }
+          wasReplaying = isReplay;
+          if (isReplay) {
+            const pct =
+              Math.round(((d.calib_replay_idx || 0) / wps) * 100) || 0;
+            $("replayPct").textContent = pct + "%";
+            $("replayFill").style.width = pct + "%";
+          }
+          $("irWPs").textContent = wps;
+
+          setPill(
+            d.status,
+            d.state,
+            tsd,
+            batLow,
+            tankLow,
+            isCalib,
+            isReplay,
+            phoneOk,
+          );
+          setShutdown(tsd, d.temp || 0);
+
+          $("batV").textContent = batRead
+            ? parseFloat(bat).toFixed(2) + "%"
+            : "---%";
+          $("batV").style.color = !batRead
+            ? "var(--mt)"
+            : bat > 50
+              ? "var(--gn)"
+              : bat > 20
+                ? "var(--am)"
+                : "var(--red)";
+          const bb = $("batB");
+          bb.style.width = (batRead ? bat : 0) + "%";
+          bb.className = batCls(batRead ? bat : 100);
+          $("tankV").textContent = parseFloat(tank).toFixed(2) + "%";
+          $("tankV").style.color =
+            tank > 50 ? "var(--bl)" : tank > 20 ? "var(--am)" : "var(--red)";
+          const bb2 = $("tankB");
+          bb2.style.width = tank + "%";
+          bb2.className = "bf " + (tank > 50 ? "bbl" : tank > 20 ? "ba" : "br");
+          setTemp(d.temp || 0);
+          $("spN").textContent = d.sprays_today || 0;
+          setSprayDots(d.sprays_today || 0);
+          $("irState").textContent = d.state ? cap(d.state) : "—";
+          const subMap = {
+            moving: "🚗 Moving",
+            scanning: "🔍 Scanning",
+            spraying: "💧 Spraying",
+            charging: "⚡ Charging",
+            cooling: "❄ Cooling",
+            manual: "🕹 Manual Drive",
+          };
+          const subEl = $("irSub");
+          subEl.textContent =
+            subMap[d.sub_state] || (isCalib ? t("calibrating") : "—");
+          subEl.style.color =
+            d.sub_state === "cooling"
+              ? "#ff6600"
+              : d.sub_state === "spraying"
+                ? "var(--red)"
+                : d.sub_state === "scanning"
+                  ? "var(--am)"
+                  : isCalib
+                    ? "var(--pu)"
+                    : isReplay
+                      ? "var(--bl)"
+                      : "var(--mt)";
+
+          if (d.lat != null && d.lon != null) {
+            const lat = parseFloat(d.lat),
+              lon = parseFloat(d.lon);
+            rMarker.setLatLng([lat, lon]);
+            const dot = $("rDot");
+            if (dot) {
+              dot.classList.toggle("hot", !!tsd);
+              dot.classList.toggle("calib", isCalib || isReplay);
+            }
+            updateTrail(lat, lon);
+            if (isCalib) updateCalibPath(lat, lon);
+            if (followMode) {
+              const cz = map.getZoom();
+              map.setView([lat, lon], cz, { animate: true });
+            }
+          }
+          if (d.dock_lat && d.dock_lon) {
+            dockMarker.setLatLng([d.dock_lat, d.dock_lon]);
+            dockMarker.setOpacity(1);
+          }
+          setAlerts(d.alerts || []);
+          setSprayLog(d.spray_log || []);
+          updateSprayMks(d.spray_log || []);
+          applyLang();
+
+          const sb = $("startBtn");
+          roverRunning = d.state === "working";
+          // Always disable calibration button if not both connected
+          $("calibStartBtn").disabled = !bothReady;
+          if (!tsd && !isCalib) {
+            $("dockBtn").disabled = !bothReady;
+            if (!bothReady) {
+              sb.classList.remove("run");
+              sb.disabled = true;
+              sb.textContent = !espOk ? t("waitingEsp") : t("waitingPhone");
+            } else if (roverRunning && !isReplay) {
+              sb.classList.add("run");
+              sb.disabled = false;
+              sb.textContent = t("stopRover");
+            } else if (isReplay) {
+              sb.classList.remove("run");
+              sb.disabled = true;
+              sb.textContent = t("replaying2");
+            } else if (batLow) {
+              sb.classList.remove("run");
+              sb.disabled = true;
+              sb.textContent = t("batTooLow");
+            } else if (tankLow) {
+              sb.classList.remove("run");
+              sb.disabled = true;
+              sb.textContent = t("tankTooLow");
+            } else {
+              sb.classList.remove("run");
+              sb.disabled = false;
+              sb.textContent = t("startRover");
+            }
+          }
+        } catch (e) {
+          if (++failCount >= 3) {
+            $("pill").className = "pill p-off";
+            $("pillTxt").textContent = t("offline");
+            setAlerts([t("serverUnreachable")]);
+          }
+        }
+      }
+
+      // ── Commands ──────────────────────────────────────────────────────────────────
+      function toggleStart() {
+        doCmd(roverRunning ? "pause" : "start");
+      }
+      async function doCmd(action) {
+        try {
+          const r = await fetch("/command", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action }),
+            }),
+            d = await r.json();
+          if (!r.ok) alert(d.error || "Command failed");
+          else poll();
+        } catch (e) {
+          console.warn("[cmd]", e);
+        }
+      }
+
+      // ── Init ──────────────────────────────────────────────────────────────────────
+      setCalibUI("idle");
+      applyLang();
+      (async () => {
+        await Promise.all([fetchWeather(), poll()]);
+        setInterval(poll, 2000);
+        setInterval(fetchWeather, 300000);
+      })();
+    </script>
+  </body>
+</html>
