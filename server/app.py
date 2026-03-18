@@ -3,7 +3,7 @@ from flask_cors import CORS
 import threading, time, requests, json, os, math
 
 DIR           = os.path.dirname(os.path.abspath(__file__))
-OWM_KEY       = "a2bdf7db705bc2923b729a97310b3743"
+OWM_KEY       = "your_openweather_api"
 OFFLINE_SECS  = 10
 TEMP_CRITICAL = 75.0
 TEMP_SAFE     = 45.0
