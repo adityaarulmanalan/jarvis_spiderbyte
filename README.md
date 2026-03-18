@@ -201,6 +201,7 @@ const String kServer = "http://<your-pc-ip>:5000";
 ## 📄 License
 
 MIT License — free to use, modify, and distribute.
+
 © 2026 Aditya Arul Manalan and Team Spiderbyte
 
 This project and its source code are protected under the MIT License.
