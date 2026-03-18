@@ -9,7 +9,7 @@ import 'package:camera/camera.dart';
 import 'package:image/image.dart' as img;
 import 'package:geolocator/geolocator.dart';
 
-const String kServer = "http://10.56.195.32:5000";
+const String kServer = "http://<your_pc_ip>:5000";
 late List<CameraDescription> cameras;
 
 Future<void> main() async {
