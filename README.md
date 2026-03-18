@@ -88,7 +88,7 @@ Open `dashboard/index.html` in a browser, or the Flask server will serve it auto
 cd mobile
 
 # Create all flutter files
-flutter creaate .
+flutter create .
 
 # Install Flutter dependencies
 flutter pub get
